@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" action="addpost">
+    <label>Заголовок</label>
+    <input type="text" id="head" name="head"><br>
+    <label>Описание</label>
+    <textarea cols="30" rows="15" id="description" name="description"></textarea>
+    <button type="submit">Нажмите</button>
+</form>
+{% endblock %}

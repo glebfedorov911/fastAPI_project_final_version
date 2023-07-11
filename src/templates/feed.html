@@ -1,0 +1,34 @@
+{% block head %}
+{% endblock %}
+
+{% block content %}
+{% for post in posts %}
+    <h3>{{post.head}}</h3><br>
+    {{post.description}}<br>
+    <hr>
+{% endfor %}
+
+<button class="previous"><</button>
+<button class="next">></button>
+<script>
+    var previous = document.querySelector(".previous");
+    var next = document.querySelector(".next");
+    var url = window.location.href.split("/");
+    var pages = {{pages}};
+
+    previous.addEventListener("click", function (e) {
+        if (parseInt(url[5]) > 1) {
+            url[5] = parseInt(url[5])-1;
+            window.location.href = url.join("/")
+        }
+    })
+
+    next.addEventListener("click", function (e) {
+        if (parseInt(url[5]) < pages) {
+            url[5] = parseInt(url[5])+1;
+            window.location.href = url.join("/")
+        }
+    })
+</script>
+
+{% endblock %}
