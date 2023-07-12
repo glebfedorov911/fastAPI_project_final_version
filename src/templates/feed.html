@@ -5,6 +5,17 @@
 {% for post in posts %}
     <h3>{{post.head}}</h3><br>
     {{post.description}}<br>
+    {% if user == post.user_id %}
+    <button class="edit" name="{{post.id}}">Edit</button>
+    <script>
+        var edit = document.querySelectorAll(`.edit`);
+
+        edit.forEach(e => e.addEventListener("click", function (e) {
+            var id = this.name;
+            window.location.href = `/posts/edit-form/${id}`;
+        }))
+    </script>
+    {% endif %}
     <hr>
 {% endfor %}
 
@@ -30,5 +41,7 @@
         }
     })
 </script>
+
+
 
 {% endblock %}

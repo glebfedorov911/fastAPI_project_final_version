@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+{{id}}
+<form action="/posts/edit-post/{{id}}" method="post">
+    <label>Заголовок</label>
+    <input type="text" id="head" name="head"><br>
+    <label>Описание</label>
+    <textarea cols="30" rows="15" id="description" name="description"></textarea>
+  <button type="submit">Button</button>
+</form>
+{% endblock %}
