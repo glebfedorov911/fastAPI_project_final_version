@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 {{id}}
+<script>
+   var user_id = "{{user_id}}"
+   var author = "{{author}}"
+   if (user_id != author) {
+        window.location.href = "/posts/feed-posts/1"
+   }
+</script>
 <form action="/posts/edit-post/{{id}}" method="post">
     <label>Заголовок</label>
     <input type="text" id="head" name="head"><br>

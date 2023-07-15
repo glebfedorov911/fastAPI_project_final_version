@@ -3,16 +3,48 @@
 
 {% block content %}
 {% for post in posts %}
-    <h3>{{post.head}}</h3><br>
-    {{post.description}}<br>
-    {% if user == post.user_id %}
-    <button class="edit" name="{{post.id}}">Edit</button>
+    <h3>{{post[0].head}}</h3><br>
+    {{post[0].description}}<br>
+    {% if user == post[0].user_id %}
+    <button class="edit" name="{{post[0].id}}">Edit</button>
     <script>
         var edit = document.querySelectorAll(`.edit`);
 
         edit.forEach(e => e.addEventListener("click", function (e) {
             var id = this.name;
             window.location.href = `/posts/edit-form/${id}`;
+        }))
+    </script>
+
+    <button class="delete" name="{{post[0].id}}">Delete</button>
+    <script>
+        var dlt = document.querySelectorAll(`.delete`);
+
+        dlt.forEach(d => d.addEventListener("click", function (e) {
+            var id = this.name;
+            window.location.href = `/posts/delete/${id}`;
+        }))
+    </script>
+
+    {% endif %}
+
+    {% if user != post[0].user_id %}
+        {% if post[1].post_id != post[0].id %}
+            <button class="like" name="{{post[0].id}}">нет лайка</button>
+        {% else %}
+            <button class="like" name="{{post[0].id}}">лайк</button>
+        {% endif %}
+    <script>
+        var like = document.querySelectorAll(".like");
+
+        like.forEach(l => l.addEventListener("click", function (e) {
+            var id = this.name;
+            if (this.innerText == "нет лайка") {
+                window.location.href = `/posts/addlike/${id}`
+            }
+            else {
+                window.location.href = `/posts/deletelike/${id}`
+            }
         }))
     </script>
     {% endif %}
@@ -41,7 +73,5 @@
         }
     })
 </script>
-
-
 
 {% endblock %}
