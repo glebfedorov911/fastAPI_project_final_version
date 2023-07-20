@@ -1,11 +1,15 @@
 import json
 import math
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi.responses import RedirectResponse
+import starlette.status as status
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.operators import and_
+from sqlalchemy.sql.functions import count
+from sqlalchemy.sql.operators import and_, or_
 
 from src.auth.models import User
 from src.database import get_async_session
@@ -31,11 +35,13 @@ async def add_post(
         await session.execute(stmt)
         await session.commit()
 
-        return {
-            "status": "success",
-            "detail": None,
-            "data": None,
-        }
+        # return {
+        #     "status": "success",
+        #     "detail": None,
+        #     "data": None,
+        # }
+
+        return RedirectResponse("/posts/feed-posts/1", status_code=status.HTTP_302_FOUND)
     except:
         return HTTPException(status_code=500, detail={
             "status": "not success",
@@ -52,15 +58,22 @@ async def posts(
         request: Request, session: AsyncSession = Depends(get_async_session), limit: int = 10, page: int = 1,
         user: User = Depends(current_active_user)
 ):
-    query = select(Post, Like).join(Like, isouter=True).distinct(Post.head)
+    query = select(Post).order_by(Post.edit_at)
     result = await session.execute(query)
 
-    posts = result.all()[::-1][(page-1)*10:][:limit]
+    offset = (page-1)*10
+    posts = result.all()[::-1][offset:][:limit]
 
     pages = await session.execute(query)
     pages = json.dumps(math.ceil(len(pages.scalars().all())/10))
 
-    context = {"request":request, "posts":posts, "pages":pages, "user": user.id, "like_posts":result.scalars().all()}
+    query = select(Like.post_id).where(Like.user_id==user.id)
+    likes = await session.execute(query)
+
+    context = {
+        "request":request, "posts":posts, "pages":pages, "user": user.id, "likes": likes.scalars().all()
+    }
+
 
     return templates.TemplateResponse("feed.html", context)
 
@@ -76,16 +89,18 @@ async def edit_post(
         if not (result.scalars().all()[0].user_id == user.id):
             raise Exception
 
-        data = {"head": head, "description": description, "user_id": user.id}
+        data = {"head": head, "description": description, "user_id": user.id, "edit_at": datetime.utcnow()}
         stmt = update(Post).values(**data).where(Post.id==id)
         await session.execute(stmt)
         await session.commit()
 
-        return {
-            "status": "success",
-            "detail": None,
-            "data": None
-        }
+        # return {
+        #     "status": "success",
+        #     "detail": None,
+        #     "data": None
+        # }
+
+        return RedirectResponse("/posts/feed-posts/1", status_code=status.HTTP_302_FOUND)
 
     except Exception:
         return HTTPException(status_code=500, detail={
@@ -122,11 +137,13 @@ async def delete_post(
         await session.execute(stmt)
         await session.commit()
 
-        return {
-            "status": "success",
-            "detail": None,
-            "data": None
-        }
+        # return {
+        #     "status": "success",
+        #     "detail": None,
+        #     "data": None
+        # }
+
+        return RedirectResponse("/posts/feed-posts/1", status_code=status.HTTP_302_FOUND)
 
     except Exception:
         return HTTPException(status_code=500, detail={
@@ -147,17 +164,23 @@ async def like_post(
         if result.scalars().all()[0].user_id == user.id:
             raise Exception
 
+        query = select(Like).where(and_(Like.user_id==user.id, Like.post_id==id))
+        result = await session.execute(query)
+
         data = {"user_id": user.id, "post_id": id}
 
-        stmt = insert(Like).values(**data)
-        await session.execute(stmt)
-        await session.commit()
+        if result.all() == []:
+            stmt = insert(Like).values(**data)
+            await session.execute(stmt)
+            await session.commit()
 
-        return {
-            "status": "success",
-            "detail": None,
-            "data": None
-        }
+        # return {
+        #     "status": "success",
+        #     "detail": None,
+        #     "data": None
+        # }
+
+        return RedirectResponse("/posts/feed-posts/1", status_code=status.HTTP_302_FOUND)
 
     except Exception:
         return HTTPException(status_code=500, detail={
@@ -176,11 +199,13 @@ async def like_post(
         await session.execute(stmt)
         await session.commit()
 
-        return {
-            "status": "success",
-            "detail": None,
-            "data": None
-        }
+        # return {
+        #     "status": "success",
+        #     "detail": None,
+        #     "data": None
+        # }
+
+        return RedirectResponse("/posts/feed-posts/1", status_code=status.HTTP_302_FOUND)
 
     except Exception:
         return HTTPException(status_code=500, detail={

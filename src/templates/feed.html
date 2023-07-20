@@ -3,7 +3,7 @@
 
 {% block content %}
 {% for post in posts %}
-    <h3>{{post[0].head}}</h3><br>
+    <h3>{{post[0].id}}. {{post[0].head}}</h3><br>
     {{post[0].description}}<br>
     {% if user == post[0].user_id %}
     <button class="edit" name="{{post[0].id}}">Edit</button>
@@ -15,7 +15,6 @@
             window.location.href = `/posts/edit-form/${id}`;
         }))
     </script>
-
     <button class="delete" name="{{post[0].id}}">Delete</button>
     <script>
         var dlt = document.querySelectorAll(`.delete`);
@@ -28,31 +27,33 @@
 
     {% endif %}
 
-    {% if user != post[0].user_id %}
-        {% if post[1].post_id != post[0].id %}
-            <button class="like" name="{{post[0].id}}">нет лайка</button>
-        {% else %}
-            <button class="like" name="{{post[0].id}}">лайк</button>
-        {% endif %}
-    <script>
-        var like = document.querySelectorAll(".like");
-
-        like.forEach(l => l.addEventListener("click", function (e) {
-            var id = this.name;
-            if (this.innerText == "нет лайка") {
-                window.location.href = `/posts/addlike/${id}`
-            }
-            else {
-                window.location.href = `/posts/deletelike/${id}`
-            }
-        }))
-    </script>
+    {% if post[0].id in likes %}
+        <button class="like" name="{{post[0].id}}">лайк</button>
+    {% else %}
+         <button class="like" name="{{post[0].id}}">нет лайка</button>
     {% endif %}
-    <hr>
+
+        <script>
+            var like = document.querySelectorAll(".like");
+
+            like.forEach(l => l.addEventListener("click", function (e) {
+                var id = this.name;
+                if (this.innerText == "нет лайка") {
+                    window.location.href = `/posts/addlike/${id}`
+                }
+                else {
+                    window.location.href = `/posts/deletelike/${id}`
+                }
+            }))
+        </script>
+
+<hr>
 {% endfor %}
 
+{% if posts %}
 <button class="previous"><</button>
 <button class="next">></button>
+{% endif %}
 <script>
     var previous = document.querySelector(".previous");
     var next = document.querySelector(".next");
